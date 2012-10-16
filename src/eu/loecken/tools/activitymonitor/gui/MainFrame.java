@@ -171,7 +171,7 @@ public class MainFrame extends JFrame implements ClipboardOwner {
 
   private void btnCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyActionPerformed
     Clipboard clip = getToolkit().getSystemClipboard();
-    String s = getHours() + "";
+    String s = String.format("%.10f", getHours());
     StringSelection cont = new StringSelection(s);
     clip.setContents(cont, this);
   }//GEN-LAST:event_btnCopyActionPerformed
