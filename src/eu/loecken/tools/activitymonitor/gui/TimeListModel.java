@@ -20,6 +20,15 @@ public class TimeListModel extends ArrayList<TimeSpan> implements ListModel<Time
     source = src;
   }
 
+  public synchronized TimeSpan getLast() {
+    int size = getSize();
+    if (size > 0) {
+      return get(size - 1);
+    } else {
+      return null;
+    }
+  }
+
   @Override
   public int getSize() {
     return size();

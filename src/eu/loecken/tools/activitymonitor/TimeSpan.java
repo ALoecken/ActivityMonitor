@@ -36,13 +36,15 @@ public class TimeSpan implements Comparable<TimeSpan> {
     return true;
   }
 
+  public long getMillis() {
+    return stopMillis - startMillis;
+  }
+
   @Override
   public String toString() {
-    double diff = (stopMillis - startMillis);
-    diff /= (1000d * 60 * 60);
     return timeFormat.format(new Date(startMillis)) + " "
             + "bis " + timeFormat.format(new Date(stopMillis)) + ". "
-            + "Dauer: " + String.format("%.3f", diff);
+            + "Dauer: " + String.format("%.3f", getMillis() / (1000d * 60 * 60));
   }
 
   @Override

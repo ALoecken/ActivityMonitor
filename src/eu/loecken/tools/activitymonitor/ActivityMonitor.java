@@ -22,6 +22,7 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
   private final static long MINIMUM_PAUSE = 5 * 60 * 1000; // 5 minutes
   private final MainFrame mainFrame;
   private TimeSpan currentTimeSpan;
+  private long lastUpdate;
 
   public ActivityMonitor() {
     try {
@@ -32,33 +33,39 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
               "There was a problem registering the native hook.", ex);
       System.exit(-1);
     }
-    currentTimeSpan = null;
-    mainFrame = new MainFrame();
+    this.currentTimeSpan = null;
+    this.lastUpdate = 0;
+    this.mainFrame = new MainFrame();
   }
 
   /**
    * Called by every listener.
    */
   public synchronized void updateTime() {
-    if (!mainFrame.isRunning()) {
-      if (currentTimeSpan != null) {
-        currentTimeSpan.updateStopTime();
-        mainFrame.getTimeList().add(currentTimeSpan);
-        currentTimeSpan = null;
-      }
+    if (!this.mainFrame.isRunning()) {
+      this.currentTimeSpan = null;
       return;
     }
 
-    if (currentTimeSpan == null) {
-      currentTimeSpan = new TimeSpan();
+
+    if (this.currentTimeSpan == null) {
+      this.currentTimeSpan = new TimeSpan();
+      this.mainFrame.getTimeList().add(this.currentTimeSpan);
+    } else if (!this.mainFrame.getTimeList().contains(this.currentTimeSpan)) {
+      this.currentTimeSpan = this.mainFrame.getTimeList().getLast();
     }
 
-    long stopMillis = currentTimeSpan.getStopMillis();
-    if (stopMillis == 0 || System.currentTimeMillis() - stopMillis < MINIMUM_PAUSE) {
-      currentTimeSpan.updateStopTime();
+    long stopMillis = this.currentTimeSpan.getStopMillis();
+    long now = System.currentTimeMillis();
+    if (stopMillis == 0 || now - stopMillis < MINIMUM_PAUSE) {
+      this.currentTimeSpan.updateStopTime();
+      if (now - this.lastUpdate > 500) // every half second
+      {
+        this.lastUpdate = now;
+        this.mainFrame.repaint();
+      }
     } else {
-      mainFrame.getTimeList().add(currentTimeSpan);
-      currentTimeSpan = new TimeSpan();
+      this.currentTimeSpan = null;
     }
   }
 

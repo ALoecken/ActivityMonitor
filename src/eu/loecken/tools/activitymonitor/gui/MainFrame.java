@@ -1,15 +1,24 @@
 package eu.loecken.tools.activitymonitor.gui;
 
 import eu.loecken.tools.activitymonitor.TimeSpan;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFrame;
 
 /**
  *
  * @author Andreas@Loecken.eu
  */
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements ClipboardOwner {
 
+  private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
   private volatile TimeListModel timeList;
 
   /**
@@ -38,6 +47,11 @@ public class MainFrame extends JFrame {
         btnMerge = new javax.swing.JButton();
         btnDelete = new javax.swing.JButton();
         btnToggle = new javax.swing.JToggleButton();
+        lblTargetTime = new javax.swing.JLabel();
+        txtHours = new javax.swing.JTextField();
+        jLabel2 = new javax.swing.JLabel();
+        lblCountHours = new javax.swing.JLabel();
+        btnCopy = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -60,9 +74,19 @@ public class MainFrame extends JFrame {
         });
 
         btnToggle.setText("Start/Stop");
-        btnToggle.addActionListener(new java.awt.event.ActionListener() {
+
+        lblTargetTime.setText("Angestrebte Zielzeit:");
+
+        txtHours.setHorizontalAlignment(javax.swing.JTextField.RIGHT);
+
+        jLabel2.setText("Angestrebte Dauer (in Stunden):");
+
+        lblCountHours.setText("Gesamtzeit:");
+
+        btnCopy.setText("kopieren");
+        btnCopy.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnToggleActionPerformed(evt);
+                btnCopyActionPerformed(evt);
             }
         });
 
@@ -70,15 +94,24 @@ public class MainFrame extends JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(btnToggle, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btnMerge, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnToggle, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                        .addComponent(txtHours))
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 264, Short.MAX_VALUE)
+                    .addComponent(lblTargetTime, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(btnMerge, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(lblCountHours, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
-                        .addComponent(btnDelete, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addComponent(btnCopy, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -86,9 +119,19 @@ public class MainFrame extends JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(btnToggle, javax.swing.GroupLayout.PREFERRED_SIZE, 65, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 213, Short.MAX_VALUE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtHours, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel2))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(lblTargetTime)
+                .addGap(11, 11, 11)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 157, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lblCountHours)
+                    .addComponent(btnCopy))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(btnDelete, javax.swing.GroupLayout.DEFAULT_SIZE, 63, Short.MAX_VALUE)
                     .addComponent(btnMerge, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -118,17 +161,65 @@ public class MainFrame extends JFrame {
     }
   }//GEN-LAST:event_btnMergeActionPerformed
 
-  private void btnToggleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnToggleActionPerformed
-  }//GEN-LAST:event_btnToggleActionPerformed
+  private double getHours() {
+    long millis = 0;
+    for (TimeSpan t : timeList) {
+      millis += t.getMillis();
+    }
+    return millis / (1000d * 60d * 60d);
+  }
+
+  private void btnCopyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCopyActionPerformed
+    Clipboard clip = getToolkit().getSystemClipboard();
+    String s = getHours() + "";
+    StringSelection cont = new StringSelection(s);
+    clip.setContents(cont, this);
+  }//GEN-LAST:event_btnCopyActionPerformed
 
   public boolean isRunning() {
     return btnToggle.isSelected();
   }
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton btnCopy;
     private javax.swing.JButton btnDelete;
     private javax.swing.JButton btnMerge;
     private javax.swing.JToggleButton btnToggle;
+    private javax.swing.JLabel jLabel2;
     private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel lblCountHours;
+    private javax.swing.JLabel lblTargetTime;
     private javax.swing.JList lstTime;
+    private javax.swing.JTextField txtHours;
     // End of variables declaration//GEN-END:variables
+
+  @Override
+  public void lostOwnership(Clipboard clipboard, Transferable contents) {
+    // nothing to do...
+  }
+
+  @Override
+  public void repaint(long time, int x, int y, int width, int height) {
+    double hours = getHours();
+    this.lblCountHours.setText("Gesamtzeit: " + String.format("%.3f", hours));
+
+    int size = timeList.getSize();
+    if (size > 0) {
+      TimeSpan lastSpan = timeList.getLast();
+      String targetHourText = this.txtHours.getText().replaceAll(",", ".");
+      if (targetHourText.length() > 0) {
+        double targetHours = 0;
+        try {
+          targetHours = Double.parseDouble(targetHourText);
+        } catch (NumberFormatException ex) {
+          Logger.getLogger(MainFrame.class.getName()).log(Level.WARNING, "Could not parse \"{0}\"", targetHourText);
+          this.txtHours.setText("");
+        } catch (Exception ex) {
+          Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, "Could not parse \"" + targetHourText + "\"", ex);
+        }
+        long millis = lastSpan.getStopMillis() + (long) ((targetHours - hours) * 60d * 60d * 1000d);
+        this.lblTargetTime.setText("Angestrebte Zielzeit: " + timeFormat.format(new Date(millis)));
+      }
+    }
+    super.repaint(time, x, y, width, height);
+  }
 }
