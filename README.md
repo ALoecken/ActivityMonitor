@@ -1,9 +1,10 @@
-ActivityMonitor
-===============
+# ActivityMonitor #
+### Problem ### 
+You need to write down the time you have been working on a project (e.g. for your job), but sometimes you forget to write down when you started, stopped, or how long you went to break.
+### Solution ### 
+Start ActivityMonitor.
 
-Problem: You need to write down the time you have been working on a project (e.g. for your job), but sometimes you forget to write down when you started, stopped, or how long you went to break.
-
-Solution: Start ActivityMonitor.
+![Screenshot](/master/deploy/screenshot.png "Screenshot")
  * Writes down the starttime of your Activity
  * Updates the current endtime on any input with mouse or keyboard 
  * Automatically starts a new Activity if you were idle for more than 5 minutes (assuming you did a break)
@@ -13,8 +14,7 @@ Solution: Start ActivityMonitor.
  * Displays the amount of hours you worked so far (summed up all activities)
  * Copies the amount of hours into your clipboard if you click on "kopieren"
 
-Used Projects:
-========
+##Used Projects##
 
 Needs this library: http://code.google.com/p/jnativehook/
 
