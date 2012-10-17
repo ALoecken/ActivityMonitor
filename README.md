@@ -1,17 +1,10 @@
-# ActivityMonitor #
-<<<<<<< HEAD
-### Problem ### 
+# ActivityMonitor 
+### Problem 
 You need to write down the time you have been working on a project (e.g. for your job), but sometimes you forget to write down when you started, stopped, or how long you went to break.
-### Solution ### 
+### Solution 
 Start ActivityMonitor.
 
-![Screenshot](/master/deploy/screenshot.png "Screenshot")
-=======
-### Problem ### You need to write down the time you have been working on a project (e.g. for your job), but sometimes you forget to write down when you started, stopped, or how long you went to break.
-### Solution ### Start ActivityMonitor.
-
-![Screenshot](ActivityMonitor/master/deploy/screenshot.png "Screenshot")
->>>>>>> 2a7ee8c845ef79c264aba15fa37cdf9ac11276a2
+![Screenshot](http://raw.github.com/ALoecken/ActivityMonitor/master/deploy/screenshot.png "Screenshot")
  * Writes down the starttime of your Activity
  * Updates the current endtime on any input with mouse or keyboard 
  * Automatically starts a new Activity if you were idle for more than 5 minutes (assuming you did a break)
