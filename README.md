@@ -4,7 +4,7 @@ You need to write down the time you have been working on a project (e.g. for you
 ### Solution 
 Start ActivityMonitor.
 
-![Screenshot](http://raw.github.com/ALoecken/ActivityMonitor/master/deploy/screenshot.png "Screenshot")
+![Screenshot](https://raw.github.com/ALoecken/ActivityMonitor/master/deploy/screenshot.png "Screenshot")
  * Writes down the starttime of your Activity
  * Updates the current endtime on any input with mouse or keyboard 
  * Automatically starts a new Activity if you were idle for more than 5 minutes (assuming you did a break)
