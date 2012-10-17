@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 
 /**
@@ -54,6 +55,8 @@ public class MainFrame extends JFrame implements ClipboardOwner {
         btnCopy = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("Activity Monitor");
+        setIconImage(new ImageIcon(getClass().getClassLoader().getResource("clock.png")).getImage());
 
         lstTime.setModel(timeList);
         lstTime.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
