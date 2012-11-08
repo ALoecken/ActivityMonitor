@@ -1,6 +1,11 @@
 package eu.loecken.tools.activitymonitor;
 
 import eu.loecken.tools.activitymonitor.gui.MainFrame;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UnsupportedLookAndFeelException;
@@ -22,7 +27,9 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
   private final static long MINIMUM_PAUSE = 5 * 60 * 1000; // 5 minutes
   private final MainFrame mainFrame;
   private TimeSpan currentTimeSpan;
+  private TimeSpan lastWrittenTimeSpan;
   private long lastUpdate;
+  private final String logName;
 
   public ActivityMonitor() {
     try {
@@ -36,6 +43,7 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
     this.currentTimeSpan = null;
     this.lastUpdate = 0;
     this.mainFrame = new MainFrame();
+    this.logName = System.currentTimeMillis() + ".log";
   }
 
   /**
@@ -46,7 +54,6 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
       this.currentTimeSpan = null;
       return;
     }
-
 
     if (this.currentTimeSpan == null) {
       this.currentTimeSpan = new TimeSpan();
@@ -63,6 +70,19 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
       {
         this.lastUpdate = now;
         this.mainFrame.repaint();
+        if (!this.currentTimeSpan.equals(this.lastWrittenTimeSpan)) {
+          try {
+            Path path = Paths.get(this.logName);
+            ArrayList<String> list = new ArrayList<>();
+            for (TimeSpan ts : this.mainFrame.getTimeList()) {
+              list.add(ts.toString());
+            }
+            Files.write(path, list, StandardCharsets.UTF_8);
+            this.lastWrittenTimeSpan = this.currentTimeSpan;
+          } catch (Exception ex) {
+            Logger.getLogger(ActivityMonitor.class.getName()).log(Level.SEVERE, null, ex);
+          }
+        }
       }
     } else {
       this.currentTimeSpan = null;
