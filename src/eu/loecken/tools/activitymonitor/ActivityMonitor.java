@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.UnsupportedLookAndFeelException;
 import org.jnativehook.GlobalScreen;
-import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 import org.jnativehook.mouse.NativeMouseEvent;
@@ -22,70 +21,117 @@ import org.jnativehook.mouse.NativeMouseWheelListener;
  *
  * @author andreas@loecken.eu
  */
-public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListener, NativeMouseWheelListener {
+public class ActivityMonitor implements NativeKeyListener,
+        NativeMouseInputListener, NativeMouseWheelListener {
 
   private final static long MINIMUM_PAUSE = 5 * 60 * 1000; // 5 minutes
+  private final static int SLEEP_TIME = 1000 / 50; //50 frames per second
   private final MainFrame mainFrame;
-  private TimeSpan currentTimeSpan;
+  private ColorChange colorchanger;
   private TimeSpan lastWrittenTimeSpan;
-  private long lastUpdate;
   private final String logName;
+  private TimeSpan currentTimeSpan;
+  private long lastInteraction;
 
   public ActivityMonitor() {
+    this.logName = System.currentTimeMillis() + ".log";
+    this.lastInteraction = System.currentTimeMillis();
+
+    System.out.println("Starting color change");
+    this.colorchanger = new ColorChange();
+
+    System.out.println("Register Hook");
     try {
-      //Initialze native hook.
+      // Initialze native hook.
       GlobalScreen.registerNativeHook();
-    } catch (NativeHookException ex) {
+    } catch (Exception ex) {
       Logger.getLogger(ActivityMonitor.class.getName()).log(Level.SEVERE,
               "There was a problem registering the native hook.", ex);
       System.exit(-1);
     }
-    this.currentTimeSpan = null;
-    this.lastUpdate = 0;
+
+    System.out.println("Starting Main-Thread");
+    final CheckActivityThread thread = new CheckActivityThread();
+
+    System.out.println("Opening Main-Frame");
     this.mainFrame = new MainFrame();
-    this.logName = System.currentTimeMillis() + ".log";
+    this.mainFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+
+      public void windowClosing(java.awt.event.WindowEvent evt) {
+        thread.running = false;
+        try {
+          thread.join();
+        } catch (InterruptedException ex) {
+          Logger.getLogger(ActivityMonitor.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        colorchanger.stop();
+      }
+    });
+    thread.start();
+
+    System.out.println("Done.");
   }
 
   /**
    * Called by every listener.
    */
-  public synchronized void updateTime() {
+  public synchronized void onInteraction() {
+    this.lastInteraction = System.currentTimeMillis();
+  }
+
+  synchronized void update(long now) {
+    // not running? --> skip
     if (!this.mainFrame.isRunning()) {
       this.currentTimeSpan = null;
       return;
     }
 
+    // new timespan?
     if (this.currentTimeSpan == null) {
+      // yes: create!
       this.currentTimeSpan = new TimeSpan();
       this.mainFrame.getTimeList().add(this.currentTimeSpan);
-    } else if (!this.mainFrame.getTimeList().contains(this.currentTimeSpan)) {
-      this.currentTimeSpan = this.mainFrame.getTimeList().getLast();
+      return;
     }
 
+    // update endtime (to latest interaction)
     long stopMillis = this.currentTimeSpan.getStopMillis();
-    long now = System.currentTimeMillis();
-    if (stopMillis == 0 || now - stopMillis < MINIMUM_PAUSE) {
-      this.currentTimeSpan.updateStopTime();
-      if (now - this.lastUpdate > 500) // every half second
-      {
-        this.lastUpdate = now;
-        this.mainFrame.repaint();
-        if (!this.currentTimeSpan.equals(this.lastWrittenTimeSpan)) {
-          try {
-            Path path = Paths.get(this.logName);
-            ArrayList<String> list = new ArrayList<>();
-            for (TimeSpan ts : this.mainFrame.getTimeList()) {
-              list.add(ts.toString());
-            }
-            Files.write(path, list, StandardCharsets.UTF_8);
-            this.lastWrittenTimeSpan = this.currentTimeSpan;
-          } catch (Exception ex) {
-            Logger.getLogger(ActivityMonitor.class.getName()).log(Level.SEVERE, null, ex);
-          }
-        }
+    if (stopMillis < lastInteraction) {
+      if (stopMillis > 0) {
+        this.colorchanger.addWorkTime((lastInteraction - stopMillis) / 1000.);
       }
-    } else {
+      this.currentTimeSpan.updateStopTime(lastInteraction);
+      stopMillis = lastInteraction;
+    }
+
+    // close current timespan if there was no interaction for MINIMUM_PAUSE ms.
+    if (now - stopMillis >= MINIMUM_PAUSE) {
+      if (stopMillis > 0) {
+        this.colorchanger.addPauseTime((now - stopMillis) / 1000.);
+      }
       this.currentTimeSpan = null;
+    }
+
+    // update gui and file
+    this.mainFrame.repaint();
+    writeTimeSpans();
+
+  }
+
+  private void writeTimeSpans() {
+    if (this.currentTimeSpan == null || !this.currentTimeSpan.equals(this.lastWrittenTimeSpan)) {
+      try {
+        Path path = Paths.get(this.logName);
+        ArrayList<String> list = new ArrayList<>();
+        for (TimeSpan ts : this.mainFrame.getTimeList()) {
+          list.add(ts.toString());
+        }
+        Files.write(path, list, StandardCharsets.UTF_8);
+        this.lastWrittenTimeSpan = this.currentTimeSpan;
+      } catch (Exception ex) {
+        Logger.getLogger(ActivityMonitor.class.getName()).log(
+                Level.SEVERE, null, ex);
+      }
     }
   }
 
@@ -96,8 +142,8 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
     /*
      * Set the Nimbus look and feel
      */
-    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /*
+    // <editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
+		/*
      * If Nimbus (introduced in Java SE 6) is not available, stay with the
      * default look and feel. For details see
      * http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
@@ -112,7 +158,7 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
     } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
       java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
-    //</editor-fold>
+    // </editor-fold>
 
     /*
      * Create and display the form
@@ -123,65 +169,113 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
       public void run() {
         ActivityMonitor activityMonitor = new ActivityMonitor();
         GlobalScreen.getInstance().addNativeKeyListener(activityMonitor);
-        GlobalScreen.getInstance().addNativeMouseListener(activityMonitor);
-        GlobalScreen.getInstance().addNativeMouseMotionListener(activityMonitor);
-        GlobalScreen.getInstance().addNativeMouseWheelListener(activityMonitor);
+        GlobalScreen.getInstance().addNativeMouseListener(
+                activityMonitor);
+        GlobalScreen.getInstance().addNativeMouseMotionListener(
+                activityMonitor);
+        GlobalScreen.getInstance().addNativeMouseWheelListener(
+                activityMonitor);
         activityMonitor.mainFrame.setVisible(true);
       }
     });
   }
 
-  //<editor-fold defaultstate="collapsed" desc=" ListenerFunctions ">
+  // <editor-fold defaultstate="collapsed" desc=" ListenerFunctions ">
   @Override
   public void nativeKeyPressed(NativeKeyEvent nke) {
-    this.updateTime();
+    this.onInteraction();
   }
 
   @Override
   public void nativeKeyReleased(NativeKeyEvent nke) {
-    this.updateTime();
+    this.onInteraction();
   }
 
   @Override
   public void nativeKeyTyped(NativeKeyEvent nke) {
-    this.updateTime();
+    this.onInteraction();
   }
 
   @Override
   public void nativeMouseClicked(NativeMouseEvent nme) {
-    this.updateTime();
+    this.onInteraction();
   }
 
   @Override
   public void nativeMousePressed(NativeMouseEvent nme) {
-    this.updateTime();
+    this.onInteraction();
   }
 
   @Override
   public void nativeMouseReleased(NativeMouseEvent nme) {
-    this.updateTime();
+    this.onInteraction();
   }
 
   @Override
   public void nativeMouseMoved(NativeMouseEvent nme) {
-    this.updateTime();
+    this.onInteraction();
   }
 
   @Override
   public void nativeMouseDragged(NativeMouseEvent nme) {
-    this.updateTime();
+    this.onInteraction();
   }
 
   @Override
   public void nativeMouseWheelMoved(NativeMouseWheelEvent nmwe) {
-    this.updateTime();
+    this.onInteraction();
   }
-  //</editor-fold>
 
+  // </editor-fold>
   @Override
   protected void finalize() throws Throwable {
-    //Clean up the native hook.
+    // Clean up the native hook.
     GlobalScreen.unregisterNativeHook();
     super.finalize();
+  }
+
+  private class CheckActivityThread extends Thread {
+
+    private long lastMillis = -1;
+    private boolean running;
+    private int count;
+    int MAX_COUNT = 10; // every 10th time
+
+    public CheckActivityThread() {
+      this.running = true;
+      this.count = 0;
+    }
+
+    @Override
+    public void run() {
+      while (running) {
+        if (lastMillis < 0) {
+          lastMillis = System.currentTimeMillis();
+        } else {
+          // update light
+          long currentMillis = System.currentTimeMillis();
+          float delta = (currentMillis - lastMillis) / 1000f;
+          colorchanger.update(delta);
+          lastMillis = currentMillis;
+
+          // upate times
+          this.count++;
+          this.count = this.count % MAX_COUNT;
+          // update pause
+          if (mainFrame == null || !mainFrame.isRunning()) {
+            colorchanger.addPauseTime(delta);
+          }
+          if (this.count == MAX_COUNT - 1) {
+            // update work/pause
+            update(currentMillis);
+          }
+        }
+        try {
+          this.sleep(SLEEP_TIME);
+        } catch (InterruptedException ex) {
+        }
+      }
+      colorchanger.stop();
+    }
   }
 }

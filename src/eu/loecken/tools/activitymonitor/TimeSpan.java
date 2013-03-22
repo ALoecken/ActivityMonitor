@@ -18,8 +18,8 @@ public class TimeSpan implements Comparable<TimeSpan> {
     stopMillis = 0;
   }
 
-  void updateStopTime() {
-    stopMillis = System.currentTimeMillis();
+  void updateStopTime(long newStop) {
+    stopMillis = newStop;
   }
 
   public long getStopMillis() {

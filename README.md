@@ -16,6 +16,10 @@ Start ActivityMonitor.
 
 ##Used Projects##
 
-Needs this library: http://code.google.com/p/jnativehook/
+Needs this library (get key and mouse input): http://code.google.com/p/jnativehook/
+
+For light: Uses OpenDMX from http://sourceforge.net/projects/opendmxjavajni/
+
+For light-change: Universal Tween Engine from https://code.google.com/p/java-universal-tween-engine/
 
 Icon downloaded from http://www.iconfinder.com/icondetails/23728/128/cairo_clock_stopwatch_icon
