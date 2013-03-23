@@ -31,11 +31,13 @@ public class ActivityMonitor implements NativeKeyListener,
   private TimeSpan lastWrittenTimeSpan;
   private final String logName;
   private TimeSpan currentTimeSpan;
-  private long lastInteraction;
+  private volatile long lastInteraction;
+  private long lastUpdate;
 
   public ActivityMonitor() {
     this.logName = System.currentTimeMillis() + ".log";
     this.lastInteraction = System.currentTimeMillis();
+    this.lastUpdate = this.lastInteraction;
 
     System.out.println("Starting color change");
     this.colorchanger = new ColorChange();
@@ -80,42 +82,24 @@ public class ActivityMonitor implements NativeKeyListener,
   }
 
   synchronized void update(long now) {
-    // not running? --> skip
-    if (!this.mainFrame.isRunning()) {
+    if (!this.mainFrame.isRunning() || now - lastInteraction >= MINIMUM_PAUSE) {
+      // pause
       this.currentTimeSpan = null;
-      return;
-    }
-
-    // new timespan?
-    if (this.currentTimeSpan == null) {
-      // yes: create!
-      this.currentTimeSpan = new TimeSpan();
-      this.mainFrame.getTimeList().add(this.currentTimeSpan);
-      return;
-    }
-
-    // update endtime (to latest interaction)
-    long stopMillis = this.currentTimeSpan.getStopMillis();
-    if (stopMillis < lastInteraction) {
-      if (stopMillis > 0) {
-        this.colorchanger.addWorkTime((lastInteraction - stopMillis) / 1000.);
+      colorchanger.addPauseTime((now - this.lastUpdate)/1000.);
+    } else {
+      // work
+      if (this.currentTimeSpan == null) {
+        this.currentTimeSpan = new TimeSpan();
+        this.mainFrame.getTimeList().add(this.currentTimeSpan);
       }
-      this.currentTimeSpan.updateStopTime(lastInteraction);
-      stopMillis = lastInteraction;
+      this.currentTimeSpan.updateStopTime(this.lastInteraction);
+      colorchanger.addWorkTime((now - this.lastUpdate)/1000.);
     }
-
-    // close current timespan if there was no interaction for MINIMUM_PAUSE ms.
-    if (now - stopMillis >= MINIMUM_PAUSE) {
-      if (stopMillis > 0) {
-        this.colorchanger.addPauseTime((now - stopMillis) / 1000.);
-      }
-      this.currentTimeSpan = null;
-    }
-
+    
     // update gui and file
     this.mainFrame.repaint();
     writeTimeSpans();
-
+    this.lastUpdate = now;
   }
 
   private void writeTimeSpans() {
@@ -261,11 +245,7 @@ public class ActivityMonitor implements NativeKeyListener,
           // upate times
           this.count++;
           this.count = this.count % MAX_COUNT;
-          // update pause
-          if (mainFrame == null || !mainFrame.isRunning()) {
-            colorchanger.addPauseTime(delta);
-          }
-          if (this.count == MAX_COUNT - 1) {
+          if (mainFrame != null && this.count == MAX_COUNT - 1) {
             // update work/pause
             update(currentMillis);
           }
