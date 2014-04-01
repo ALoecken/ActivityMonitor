@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="create_run_jar" name="Create Runnable Jar for Project ActivityMonitor with libraries in sub-folder">
+    <!--this file was created by Eclipse Runnable JAR Export Wizard-->
+    <!--ANT 1.7 is required                                        -->
+    <target name="create_run_jar">
+        <delete dir="ActivityMonitor/lib"/>
+        <delete dir="ActivityMonitor"/>
+        <jar destfile="ActivityMonitor/ActivityMonitor.jar">
+            <manifest>
+                <attribute name="Main-Class" value="eu.loecken.tools.activitymonitor.ActivityMonitor"/>
+                <attribute name="Class-Path" value=". lib/tween-engine-api.jar lib/JNativeHook.jar lib/OpenDmx.jar"/>
+            </manifest>
+            <fileset dir="../bin"/>
+        </jar>
+        <mkdir dir="ActivityMonitor"/>
+        <mkdir dir="ActivityMonitor/lib"/>
+        <!-- 
+        <copy file="../lib/tween-engine-api.jar" todir="ActivityMonitor/lib"/>
+        <copy file="../lib/JNativeHook.jar" todir="ActivityMonitor/lib"/>
+        <copy file="../lib/OpenDmx.jar" todir="ActivityMonitor/lib"/>
+        <copy file="../dll/FTD2XX.dll" todir="ActivityMonitor"/>
+        <copy file="../dll/opendmx.dll" todir="ActivityMonitor"/>
+        -->
+        <copy file="../res/readme.txt" todir="ActivityMonitor"/>
+        <zip destfile="ActivityMonitor.zip" basedir="ActivityMonitor" excludes="dont*.*" />
+    </target>
+</project>

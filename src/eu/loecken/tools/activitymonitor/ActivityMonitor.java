@@ -251,7 +251,7 @@ public class ActivityMonitor implements NativeKeyListener,
           }
         }
         try {
-          this.sleep(SLEEP_TIME);
+          CheckActivityThread.sleep(SLEEP_TIME);
         } catch (InterruptedException ex) {
         }
       }
