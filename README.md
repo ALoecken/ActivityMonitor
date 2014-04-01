@@ -15,7 +15,7 @@ Start ActivityMonitor.
  * Copies the amount of hours into your clipboard if you click on "kopieren"
 
 ## Needed files to run this project##
-In the following I assume that you cloned this project to the directory "ActivityMonitor" and store jars at "ActivityMonitor/lib". Native libraries (dlls) are stored at "ActivityMonitor". 
+In the following, I assume that you cloned this project to the directory "ActivityMonitor" and store jars at "ActivityMonitor/lib". Native libraries (dlls) are stored within the root (i.e. "ActivityMonitor"). 
  1. Go to https://code.google.com/p/java-universal-tween-engine/
   1. Download "tween-engine-api-6.3.3.zip" (maybe a newer version is also working)
   2. Extract zip and copy "tween-engine-api.jar" into "ActivityMonitor/lib"
