@@ -8,7 +8,7 @@
         <jar destfile="tmp/ActivityMonitor.jar">
             <manifest>
                 <attribute name="Main-Class" value="eu.loecken.tools.activitymonitor.ActivityMonitor"/>
-                <attribute name="Class-Path" value=". lib/tween-engine-api.jar lib/JNativeHook.jar lib/OpenDmx.jar"/>
+                <attribute name="Class-Path" value=". lib/tween-engine-api.jar lib/JNativeHook.jar lib/OpenDmx.jar lib/RXTXcomm.jar"/>
             </manifest>
             <fileset dir="../bin"/>
         </jar>
