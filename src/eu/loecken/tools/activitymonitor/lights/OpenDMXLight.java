@@ -1,15 +1,18 @@
-package eu.loecken.tools.activitymonitor;
+package eu.loecken.tools.activitymonitor.lights;
 
 import com.juanjo.openDmx.OpenDmx;
+
+import eu.loecken.tools.activitymonitor.ActivityMonitor;
+
 import java.awt.Color;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class Light {
+public class OpenDMXLight {
 
 	private boolean connected = false;
 
-	public Light() {
+	public OpenDMXLight() {
 		// open dmx widget to send data
 		if (!OpenDmx.connect(OpenDmx.OPENDMX_TX)) {
 			Logger.getLogger(ActivityMonitor.class.getName()).log(
