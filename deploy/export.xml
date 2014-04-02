@@ -3,25 +3,27 @@
     <!--this file was created by Eclipse Runnable JAR Export Wizard-->
     <!--ANT 1.7 is required                                        -->
     <target name="create_run_jar">
-        <delete dir="ActivityMonitor/lib"/>
-        <delete dir="ActivityMonitor"/>
-        <jar destfile="ActivityMonitor/ActivityMonitor.jar">
+        <delete dir="tmp/lib"/>
+        <delete dir="tmp"/>
+        <jar destfile="tmp/ActivityMonitor.jar">
             <manifest>
                 <attribute name="Main-Class" value="eu.loecken.tools.activitymonitor.ActivityMonitor"/>
                 <attribute name="Class-Path" value=". lib/tween-engine-api.jar lib/JNativeHook.jar lib/OpenDmx.jar"/>
             </manifest>
             <fileset dir="../bin"/>
         </jar>
-        <mkdir dir="ActivityMonitor"/>
-        <mkdir dir="ActivityMonitor/lib"/>
+        <mkdir dir="tmp"/>
+        <mkdir dir="tmp/lib"/>
         <!-- 
-        <copy file="../lib/tween-engine-api.jar" todir="ActivityMonitor/lib"/>
-        <copy file="../lib/JNativeHook.jar" todir="ActivityMonitor/lib"/>
-        <copy file="../lib/OpenDmx.jar" todir="ActivityMonitor/lib"/>
-        <copy file="../dll/FTD2XX.dll" todir="ActivityMonitor"/>
-        <copy file="../dll/opendmx.dll" todir="ActivityMonitor"/>
+        <copy file="../lib/tween-engine-api.jar" todir="tmp/lib"/>
+        <copy file="../lib/JNativeHook.jar" todir="tmp/lib"/>
+        <copy file="../lib/OpenDmx.jar" todir="tmp/lib"/>
+        <copy file="../dll/FTD2XX.dll" todir="tmp"/>
+        <copy file="../dll/opendmx.dll" todir="tmp"/>
         -->
-        <copy file="../res/readme.txt" todir="ActivityMonitor"/>
-        <zip destfile="ActivityMonitor.zip" basedir="ActivityMonitor" excludes="dont*.*" />
+        <copy file="../res/readme.txt" todir="tmp"/>
+        <zip destfile="ActivityMonitor.zip" basedir="tmp" excludes="dont*.*" />
+        <delete dir="tmp/lib"/>
+        <delete dir="tmp"/>
     </target>
 </project>

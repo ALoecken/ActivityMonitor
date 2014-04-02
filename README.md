@@ -28,6 +28,11 @@ In the following, I assume that you cloned this project to the directory "Activi
   1. Download "opendmx_bin01.zip" (from http://sourceforge.net/projects/opendmxjavajni/files/opendmx_bin/opendmx_bin01/ )
   2. Extract zip and copy "OpenDmx.jar" into "ActivityMonitor/lib"
   3. Copy dlls to "ActivityMonitor"
+  
+4. Go to http://mfizz.com/oss/rxtx-for-java
+  1. Download Windows-x86 (mfz-rxtx-2.2-20081207-win-x86.zip)
+  2. Extract zip and copy "RXTX.jar" into "ActivityMonitor/lib"
+  3. Copy dlls to "ActivityMonitor"
  
  
 ##Used Projects##
@@ -35,5 +40,6 @@ In the following, I assume that you cloned this project to the directory "Activi
  * For light: Uses OpenDMX from http://sourceforge.net/projects/opendmxjavajni/
  * For light-change: Universal Tween Engine from https://code.google.com/p/java-universal-tween-engine/
  * Icon downloaded from http://www.iconfinder.com/icondetails/23728/128/cairo_clock_stopwatch_icon
+ * RxTx for Java from http://mfizz.com/oss/rxtx-for-java
 
 
