@@ -22,7 +22,7 @@ public class SerialConnection implements SerialPortEventListener {
   /** Milliseconds to block while waiting for port open */
   private static final int TIME_OUT = 2000;
   /** Default bits per second for COM port. */
-  private static final int DATA_RATE = 115200;
+  private static final int DATA_RATE = 7200;
   
   public void initialize(String portName) {
     CommPortIdentifier portId = null;
@@ -90,10 +90,8 @@ public class SerialConnection implements SerialPortEventListener {
     if (output != null) {
       try {
         for (byte b : bytes) {
-          System.out.print((char) b);
           output.write(b);
         }
-        System.out.println();
         output.flush();
       } catch (Exception e) {
         System.err.println(e.toString());

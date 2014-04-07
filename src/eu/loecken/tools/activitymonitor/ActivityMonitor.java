@@ -25,7 +25,7 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
     NativeMouseWheelListener {
   
   private final static long MINIMUM_PAUSE = 5 * 60 * 1000; // 5 minutes
-  private final static int SLEEP_TIME = 1000/6; // 50 frames per second
+  private final static int SLEEP_TIME = 1000/44; // 44 frames per second
   private final MainFrame mainFrame;
   private ColorChange colorchanger;
   private TimeSpan lastWrittenTimeSpan;
