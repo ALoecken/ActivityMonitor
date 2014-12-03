@@ -88,7 +88,7 @@ public class ActivityMonitor implements NativeKeyListener, NativeMouseInputListe
       colorchanger.addPauseTime((now - this.lastUpdate) / 1000.);
     } else {
       // work
-      if (this.currentTimeSpan == null) {
+      if (this.currentTimeSpan == null || !this.mainFrame.containsTimeSpan(this.currentTimeSpan)) {
         this.currentTimeSpan = new TimeSpan();
         this.mainFrame.getTimeList().add(this.currentTimeSpan);
       }

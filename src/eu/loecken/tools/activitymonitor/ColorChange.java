@@ -16,13 +16,14 @@ import java.awt.Color;
 public class ColorChange {
   
   // TODO: Put this into settings and/or menu
-  public final static int greenHue = 240; // green (normally 120) --> let's use blue (240) :)
+  public final static int greenHue = 240; // let's use blue (240) (green is normally 120) 
   public final static int redHue = 0; // red
-  public final static int maxAkku = 14400; // four hours
+  public final static int maxAkku = 1500; // let's use 25minutes --> 1500 sec.
+  public final static float workPauseRatio = maxAkku / 300f; // 5 minutes break --> 300sec.
   public final static int timePerCycle = 7; // seconds ~17 "breaths" per minute
-  public final static float maxBrightness = .8f; // 80% maximum brightness
-  public final static float minBrightness = .05f; // 5% minimum brightness
-  public static final String comPort = "COM7"; // COM-Port for Arduino-Light
+  public final static float maxBrightness = .4f; // 40% maximum brightness
+  public final static float minBrightness = .07f; // 7% minimum brightness
+  public static final String comPort = "COM4"; // COM-Port for Arduino-Light
   
   private final TweenManager brightnessTweenManager = new TweenManager();
   private final TweenManager hueTweenManager = new TweenManager();
@@ -54,18 +55,27 @@ public class ColorChange {
   private void restartHueTween() {
     this.lastAkku = maxAkku;
     this.hsvColor[0] = greenHue;
-    this.hueTween = Tween.to(this.hsvColor, ValueAccessor.HUE, maxAkku).target(redHue).ease(Expo.IN)
+    this.hueTween = Tween.to(this.hsvColor, ValueAccessor.HUE, maxAkku).target(redHue).ease(Sine.IN)
         .start(hueTweenManager);
   }
   
+  /**
+   * 
+   * @param delta time since last update
+   */
   public void addPauseTime(double delta) {
-    this.akku += (delta * 3);
+    this.akku += (delta * workPauseRatio);
     if (this.akku > maxAkku) {
       this.akku = maxAkku;
     }
     update();
   }
   
+
+  /**
+   * 
+   * @param delta time since last update
+   */
   public void addWorkTime(double delta) {
     this.akku -= delta;
     if (this.akku < 0) {

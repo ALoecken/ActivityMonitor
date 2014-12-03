@@ -4,49 +4,51 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- *
+ * 
  * @author Andreas@Loecken.eu
  */
 public class TimeSpan implements Comparable<TimeSpan> {
-
+  
   private static final SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
-  private final long startMillis;
+  private volatile long startMillis;
   private volatile long stopMillis;
-
+  
   public TimeSpan() {
     startMillis = System.currentTimeMillis();
-    stopMillis = 0;
+    stopMillis = startMillis;
   }
-
+  
   void updateStopTime(long newStop) {
     stopMillis = newStop;
   }
-
+  
   public long getStopMillis() {
     return stopMillis;
   }
-
-  public boolean merge(TimeSpan otherSpan) {
-    if (startMillis < otherSpan.startMillis) {
-      stopMillis = otherSpan.stopMillis;
-      otherSpan.stopMillis = otherSpan.startMillis;
-    } else {
-      return false;
-    }
-    return true;
+  
+  public void merge(TimeSpan otherSpan) {
+    // given: a->b, c->d; want: a->d, a->d
+    long start, stop;
+    start = Math.min(startMillis, otherSpan.startMillis);
+    stop = Math.max(stopMillis, otherSpan.stopMillis);
+    
+    this.startMillis = start;
+    otherSpan.startMillis = start;
+    this.stopMillis = stop;
+    otherSpan.stopMillis = stop;
   }
-
+  
   public long getMillis() {
     return stopMillis - startMillis;
   }
-
+  
   @Override
   public String toString() {
-    return timeFormat.format(new Date(startMillis)) + " "
-            + "bis " + timeFormat.format(new Date(stopMillis)) + ". "
-            + "Dauer: " + String.format("%.3f", getMillis() / (1000d * 60 * 60));
+    return timeFormat.format(new Date(startMillis)) + " " + "bis "
+        + timeFormat.format(new Date(stopMillis)) + ". " + "Dauer: "
+        + String.format("%.3f", getMillis() / (1000d * 60 * 60));
   }
-
+  
   @Override
   public int compareTo(TimeSpan o) {
     return new Long(startMillis).compareTo(o.startMillis);
